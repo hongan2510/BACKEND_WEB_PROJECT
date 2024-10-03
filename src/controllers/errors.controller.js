@@ -1,3 +1,6 @@
+const ApiError = require('../api-error');
+
+
 function methodNotAllowed(req, res, next) {
     if(req.route){
         const httpMethods = Object.keys(req.route.methods)
