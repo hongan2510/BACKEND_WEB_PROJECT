@@ -1,0 +1,88 @@
+components:
+  schemas:
+    Books:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true # Returned by HTTP GET
+        name:
+          type: string
+          description: book name
+        author:
+          type: string
+          description: book author
+        abstract:
+          type: string
+          description: book abstract
+        typeid:
+          type: string
+          description: reference type
+        image:
+          type: string
+          description: link to folder contain images
+      required: [id, name, author, abstract, typeid, image]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "A unique identifier for the user, "
+        username:
+          type: string
+          description: "The user's username"
+        password:
+          type: string
+          description: "The user's password, "
+        role_id:
+          type: integer
+          description: "The ID that links the user to a specific role."
+      required:
+        - id
+        - username
+        - password
+        - role_id
+
+    Role:
+      type: object
+      properties:
+        role_id:
+          type: integer
+          description: "A unique identifier for the role."
+        name:
+          type: string
+          description: "The name of the role, such as 'Admin' or 'User'."
+      required:
+        - role_id
+        - name
+
+    Type:
+      type: object
+      properties:
+        type_id:
+          type: string
+          description: "A unique identifier for the book type, such as 'FIC' for Fiction."
+        name:
+          type: string
+          description: "The name of the book type, such as 'Fiction' or 'Non-fiction'."
+      required:
+        - type_id
+        - name
+        
+    Session:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          description: "The session identifier"
+        user:
+          $ref: "#/components/schemas/User"
+        createdAt:
+          type: string
+          format: date-time
+          description: "The timestamp when the session was created"
+        expiresAt:
+          type: string
+          format: date-time
+          description: "The timestamp when the session expires"
