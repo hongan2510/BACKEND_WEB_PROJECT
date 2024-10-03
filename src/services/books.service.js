@@ -1,10 +1,10 @@
-const id = require('faker/lib/locales/id_ID');
+// const id = require('faker/lib/locales/id_ID');
 const knex = require('../database/knex');
 const Paginator = require('./paginator');
 
 
 function makeBookService (){
-    function getInformation(payload) {
+    async function getInformation(payload) {
         const information = {
             name: payload.name,
             author: payload.author,
@@ -36,6 +36,11 @@ function makeBookService (){
         return information;
     }
 
+
+    // define a function to get all type books
+
+    
+
     // define function to add new book 
     async function addBook(payload) {
         const book  = getInformation(payload);
@@ -45,52 +50,59 @@ function makeBookService (){
 
     //define function to get many books by filter 
     async function getManyBooks(query) {
-        const {name, author, typeid,id , page = 1, limit =6 } = query;
-        const paninator = new Paginator(page, limit);
+        const { name, author, typeid, id, type, page = 1, limit = 6 } = query;
+        const paginator = new Paginator(page, limit);
 
-        let results = await knex('books')
+        let queryBuilder = knex('BOOKS')
+            .select(
+            knex.raw('count(BOOKS.id) OVER() AS recordsCount'),
+            'BOOKS.id',
+            'BOOKS.name',
+            'BOOKS.author',
+            'BOOKS.abstract',
+            'TYPE.name as typename',
+            'BOOKS.image'
+            )
+            .from('BOOKS')
+            .join('TYPE', 'BOOKS.typeid', 'TYPE.type_id')
             .where((builder) => {
-            if (name) {
-                builder.where('name', 'like', `%${name}%`);
-            }
-            if (author) {
-                builder.where('author', 'like', `%${author}%`);
-            }
-            if (typeid) {
-                builder.where('typeid', `${typeid}`);
-            }
-            if (id){
-                builder.where('id', `${id}`);
-            }
-        })
-        .select(
-            knex.raw('count(id) OVER() AS recordsCount'),
-            'id',
-            'name',
-            'author',
-            'abstract',
-            'typeid',
-            'image',	
-        )
-        .limit(paninator.limit)
-        .offset(paninator.offset);
+                if (name) {
+                    builder.where('BOOKS.name', 'like', `%${name}%`);
+                }
+                if (author) {
+                    builder.where('BOOKS.author', 'like', `%${author}%`);
+                }
+                if (typeid) {
+                    builder.where('BOOKS.typeid', typeid);
+                }
+                if (id) {
+                    builder.where('BOOKS.id', id);
+                }
+                if(type){
+                    builder.where('TYPE.name','like',  `%${type}%`);
+                }
 
-        let totalRecords=0;
-        results = results.map((result) => {
+            })
+            .limit(paginator.limit)
+            .offset(paginator.offset);
+
+        const results = await queryBuilder;
+
+        let totalRecords = 0;
+        results.forEach((result) => {
             totalRecords = result.recordsCount;
             delete result.recordsCount;
-            return result;
-        })
-
-        console.log(totalRecords);
-        console.log(results);
+        });
 
         return {
-            metadata: paninator.getMetadata(totalRecords),
+            metadata: paginator.getMetadata(totalRecords),
             books: results,
-
         };
     }
+
+
+
+
     // define function to get book by id 
     async function getBookById(id) {
         const book = await knex('books').where('id', id).select("*").first();
@@ -112,10 +124,7 @@ function makeBookService (){
         return knex('books').del();
     }
 
-
-
-
-
+    
 
 
     /////////////////////////////////////
@@ -123,9 +132,10 @@ function makeBookService (){
         addBook,
         getManyBooks,
         getBookById,
-        updateBook, 
+        updateBook,     
         deleteBook,
-        deleteAllBooks
+        deleteAllBooks,
+        getBookById,
     }
 
 }
