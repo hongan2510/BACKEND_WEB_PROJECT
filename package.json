@@ -1,0 +1,17 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Members: Nguyễn Phan Hồng An B2111913  Trần Nhựt Trương B2112020",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express-session": "^1.18.0",
+    "knex": "^3.1.0",
+    "mysql": "^2.18.1"
+  }
+}
